@@ -153,7 +153,7 @@ module Network.Discord.Rest.Guild
       doFetch = go
         where
           url = baseUrl /: "guilds"
-          go :: DiscordRest m => GuildRequest a -> m a
+          go :: GuildRequest a -> m a
           go r@(GetGuild guild) = makeRequest r
             $ Get (url // guild) mempty
           go r@(ModifyGuild guild patch) = makeRequest r

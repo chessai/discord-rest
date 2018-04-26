@@ -23,13 +23,16 @@ module Network.Discord.Rest.Prelude where
   baseURL :: String
   baseURL = "https://discordapp.com/api/v6"
 
-  class (MonadIO m, DiscordAuth m) => DiscordRest m where
-    getRateLimit  :: DoFetch f a => f a -> m (Maybe Int)
-
-    setRateLimit  :: DoFetch f a => f a -> Int -> m ()
-
-    waitRateLimit :: DoFetch f a => f a -> m ()
-    waitRateLimit endpoint = do
+  -- | intended constraints:
+  -- DoFetch f a, MonadIO m
+  data RateLimit m f a
+    = RateLimit
+    { getRateLimit :: f a -> m (Maybe Int)
+    , setRateLimit :: f a -> Int -> m ()
+    }
+  
+  waitRateLimit :: DoFetch f a => f a -> m ()
+  waitRateLimit endpoint = do
       rl <- getRateLimit endpoint
       case rl of
         Nothing -> return ()
@@ -39,14 +42,11 @@ module Network.Discord.Rest.Prelude where
             infoM "Discord-hs.Rest" "Hit rate limit, backing off"
             threadDelay $ 1000000 * (l - now)
             infoM "Discord-hs.Rest" "Done waiting"
-          return ()
-
-  instance (MonadIO m, DiscordRest m) => MonadHttp m where
-    handleHttpException = liftIO . throwIO
+          pure ()
 
   -- | Class over which performing a data retrieval action is defined
   class Hashable (a b) => DoFetch (a :: * -> *) b | a b -> b where
-    doFetch :: DiscordRest m => a b -> m b
+    doFetch :: a b -> m b
   
   -- | Represents a range of 'Snowflake's
   data Range = Range { after :: Snowflake, before :: Snowflake, limit :: Int}

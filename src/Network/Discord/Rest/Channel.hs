@@ -88,7 +88,7 @@ module Network.Discord.Rest.Channel
 
           url = baseUrl /: "channels"
 
-          go :: DiscordRest m => ChannelRequest a -> m a
+          go :: ChannelRequest a -> m a
           go r@(GetChannel chan) = makeRequest r
             $ Get (url // chan) mempty
           go r@(ModifyChannel chan patch) = makeRequest r
