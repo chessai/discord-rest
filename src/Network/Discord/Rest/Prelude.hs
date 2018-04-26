@@ -41,8 +41,8 @@ module Network.Discord.Rest.Prelude where
             infoM "Discord-hs.Rest" "Done waiting"
           return ()
 
---  instance (MonadIO m, DiscordRest m) => MonadHttp m where
---    handleHttpException = liftIO . throwIO
+  instance (MonadIO m, DiscordRest m) => MonadHttp m where
+    handleHttpException = liftIO . throwIO
 
   -- | Class over which performing a data retrieval action is defined
   class Hashable (a b) => DoFetch (a :: * -> *) b | a b -> b where
